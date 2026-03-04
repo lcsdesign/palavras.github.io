@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Caça-Palavras Design Pro</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap');
+
+        :root {
+            --red-glow: #ff0000;
+            --red-border: #ff3333;
+            --bg-dark: #000000;
+            --glass-bg: rgba(255, 255, 255, 0.07);
+            --glass-border: rgba(255, 255, 255, 0.12);
+        }
+
+        body {
+            background-color: #0a0a0a;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            color: white;
+        }
+
+        /* Container 9:16 Travado */
+        .app-container {
+            height: 100vh;
+            aspect-ratio: 9 / 16;
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 0, 0, 0.2) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(255, 0, 0, 0.15) 0%, transparent 40%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 4vh 5vw;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .logo { font-size: 3.5vh; font-weight: 400; margin-bottom: 0.5vh; letter-spacing: 2px; }
+        .logo span { color: var(--red-glow); font-weight: 900; }
+
+        .title {
+            font-size: 3.8vh;
+            line-height: 1;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 3vh;
+            letter-spacing: -1px;
+        }
+
+        /* Efeito Glassmorphism na Tabela */
+        .glass-panel {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            margin-bottom: 2.5vh;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+            width: 92%;
+            height: 92%;
+            z-index: 2;
+        }
+
+        .cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.4vh;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* Marcadores de Resposta */
+        #pills-container {
+            position: absolute;
+            top: 4%; left: 4%; right: 4%; bottom: 4%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .pill {
+            position: absolute;
+            border: 2px solid var(--red-border);
+            background: rgba(255, 0, 0, 0.2);
+            border-radius: 50px;
+            box-shadow: 0 0 12px var(--red-glow);
+            display: none;
+        }
+        .pill.active { display: block; animation: fadeIn 0.3s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Lista e Infos */
+        .word-section { text-align: center; margin-bottom: 2vh; width: 100%; }
+        .word-title { font-size: 1.8vh; font-weight: 900; margin-bottom: 0.8vh; color: #ffcccc; }
+        #wordList { font-size: 1.6vh; font-weight: 600; line-height: 1.4; color: #fff; min-height: 4.5vh; }
+
+        .timer { color: var(--red-border); font-weight: 900; font-size: 2.2vh; margin-bottom: 1vh; }
+        .engagement { font-size: 1.4vh; text-transform: none; color: #aaa; margin-bottom: 2vh; font-weight: 600; }
+
+        .separator { width: 90%; height: 1.5px; background: white; border: none; margin-bottom: 2vh; }
+
+        .promo { font-size: 1.5vh; text-transform: none; margin-bottom: 0.5vh; opacity: 0.9; text-align: center; }
+        .link { font-size: 1.9vh; font-weight: 700; text-transform: lowercase; margin-bottom: 2.5vh; }
+
+        .reveal-btn {
+            background: var(--red-glow);
+            border: none;
+            color: white;
+            padding: 1.2vh 5vh;
+            border-radius: 30px;
+            font-weight: 900;
+            font-size: 1.6vh;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
+            transition: transform 0.2s;
+        }
+        .reveal-btn:active { transform: scale(0.95); }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="logo">LCS<span>⚡</span></div>
+    <div class="title">DESAFIO<br>CAÇA-PALAVRAS</div>
+
+    <div class="glass-panel">
+        <div id="grid"></div>
+        <div id="pills-container"></div>
+    </div>
+
+    <div class="word-section">
+        <div class="word-title">PALAVRAS A ENCONTRAR:</div>
+        <div id="wordList"></div>
+    </div>
+
+    <div class="timer" id="timer">NOVA RODADA: 10:00</div>
+    <div class="engagement">Curta e comente se encontrou todas as palavras!</div>
+
+    <hr class="separator">
+
+    <div class="promo">❖ Quer seu próprio design de jogo? Chama na bio</div>
+    <div class="link">hopp.bio/lcsdesign</div>
+    
+    <button class="reveal-btn" onclick="toggleReveal()">REVELAR RESPOSTAS</button>
+</div>
+
+<script>
+    // Palavras seguras e profissionais de Design/Marketing
+    const safeWordsPool = [
+        "MARCA", "DESIGN", "CORES", "VETOR", "PIXEL", "FONTE", "LOGO", 
+        "LAYOUT", "SOCIAL", "MIDIA", "ARTE", "PERFIL", "CANVA",
+        "EDITAR", "ESTILO", "POST", "FEED", "CRIAR", "IDEIA", "ICONE"
+    ];
+
+    const gridSize = 10;
+    let timeLeft = 600; // 10 minutos
+    let isRevealing = false;
+
+    function initGame() {
+        const gridElement = document.getElementById('grid');
+        const pillsElement = document.getElementById('pills-container');
+        const wordListElement = document.getElementById('wordList');
+        
+        gridElement.innerHTML = '';
+        pillsElement.innerHTML = '';
+        
+        // Seleciona 6 palavras aleatórias
+        let currentWords = [...safeWordsPool].sort(() => 0.5 - Math.random()).slice(0, 6);
+        wordListElement.innerHTML = currentWords.slice(0,3).join(", ") + "<br>" + currentWords.slice(3,6).join(", ");
+
+        let grid = Array(gridSize).fill().map(() => Array(gridSize).fill(''));
+
+        currentWords.forEach(word => {
+            let placed = false;
+            let attempts = 0;
+            while (!placed && attempts < 100) {
+                let dir = Math.random() > 0.5 ? {x: 1, y: 0} : {x: 0, y: 1};
+                let x = Math.floor(Math.random() * (gridSize - (dir.x * word.length)));
+                let y = Math.floor(Math.random() * (gridSize - (dir.y * word.length)));
+
+                if (canPlace(grid, word, x, y, dir)) {
+                    for (let i = 0; i < word.length; i++) {
+                        grid[y + i * dir.y][x + i * dir.x] = word[i];
+                    }
+                    createPill(word, x, y, dir);
+                    placed = true;
+                }
+                attempts++;
+            }
+        });
+
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        for (let y = 0; y < gridSize; y++) {
+            for (let x = 0; x < gridSize; x++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.innerText = grid[y][x] || letters[Math.floor(Math.random() * letters.length)];
+                gridElement.appendChild(cell);
+            }
+        }
+    }
+
+    function canPlace(grid, word, x, y, dir) {
+        for (let i = 0; i < word.length; i++) {
+            let char = grid[y + i * dir.y][x + i * dir.x];
+            if (char !== '' && char !== word[i]) return false;
+        }
+        return true;
+    }
+
+    function createPill(word, x, y, dir) {
+        const pill = document.createElement('div');
+        pill.className = 'pill';
+        pill.style.left = `${x * 10}%`;
+        pill.style.top = `${y * 10}%`;
+        pill.style.width = dir.x === 1 ? `${word.length * 10}%` : `10%`;
+        pill.style.height = dir.y === 1 ? `${word.length * 10}%` : `10%`;
+        document.getElementById('pills-container').appendChild(pill);
+    }
+
+    function toggleReveal(show = null) {
+        isRevealing = show !== null ? show : !isRevealing;
+        document.querySelectorAll('.pill').forEach(p => isRevealing ? p.classList.add('active') : p.classList.remove('active'));
+    }
+
+    // Lógica do Timer e Reinício
+    setInterval(() => {
+        if (timeLeft > 0) {
+            timeLeft--;
+            let m = Math.floor(timeLeft / 60);
+            let s = timeLeft % 60;
+            document.getElementById('timer').innerText = `NOVA RODADA: ${m}:${s < 10 ? '0'+s : s}`;
+        } else {
+            // Quando acaba o tempo
+            toggleReveal(true); // Revela
+            setTimeout(() => {
+                timeLeft = 600; // Reseta timer
+                toggleReveal(false); // Esconde marcações
+                initGame(); // Novo jogo com novas palavras
+            }, 8000); // Fica 8 segundos mostrando a resposta antes de mudar
+        }
+    }, 1000);
+
+    initGame();
+</script>
+</body>
+</html>
